@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casos de Prueba</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Casos de Prueba</h1>
+            
+            <!-- Sistema de Tabs Moderno -->
+            <div class="tab-container">
+                <div class="tab-nav">
+                    <button class="tab-btn tab-active" data-tab="gestion">🏠 Gestión</button>
+                    <button class="tab-btn" data-tab="guardar">💾 Guardar</button>
+                    <button class="tab-btn" data-tab="cargar">📂 Cargar</button>
+                    <button class="tab-btn" data-tab="config">⚙️ Configuración</button>
+                </div>
+
+                <div class="tab-content-container">
+                    <!-- Tab 1: Gestión -->
+                    <div class="tab-content tab-active" id="tab-gestion">
+                        <button class="btn btn-success" id="btnAddCase">➕ Nuevo Escenario</button>
+                        <button class="btn btn-info" id="btnGenerateReport">📊 Generar Reporte</button>
+                    </div>
+
+                    <!-- Tab 2: Guardar -->
+                    <div class="tab-content" id="tab-guardar">
+                        <button class="btn btn-warning" id="btnExportExcel">📊 Guardar Excel</button>
+                        <button class="btn btn-warning" id="btnSaveCases">💾 Guardar JSON</button>
+                    </div>
+
+                    <!-- Tab 3: Cargar -->
+                    <div class="tab-content" id="tab-cargar">
+                        <button class="btn btn-info" id="btnImportExcel">📥 Cargar Excel</button>
+                        <button class="btn btn-info" id="btnLoadCases">📂 Cargar JSON</button>
+                    </div>
+
+                    <!-- Tab 4: Configuración -->
+                    <div class="tab-content" id="tab-config">
+                        <button class="btn btn-variable" id="btnConfigVars">⚙️ Configurar Variables</button>
+                        
+                        <!-- Switch de Tema aquí -->
+                        <div class="theme-switch-container">
+                            <span class="theme-label">🌓 Tema:</span>
+                            <div class="theme-switch">
+                                <label class="switch">
+                                    <input type="checkbox" id="themeToggle">
+                                    <span class="slider"></span>
+                                </label>
+                                <span id="themeLabel">Modo Claro</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-info btn-dev-only" id="btnForceUpdate" style="display: none;">🔄 Forzar Update</button>
+                        
+                        <!-- Separador para zona peligrosa -->
+                        <div class="config-separator"></div>
+                        
+                        <button class="btn btn-danger" id="btnClearAll">🗑️ Limpiar Todo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- InformacIón del Requerimiento -->
+        <div class="requirement-info" id="requirementInfo">
+            <div class="requirement-card">
+                <div class="requirement-header">
+                    <div class="requirement-title">
+                        <h3 id="requirementDisplayTitle">Información del Requerimiento</h3>
+                        <span class="requirement-subtitle" id="requirementDisplaySubtitle">Click en editar para
+                            configurar</span>
+                    </div>
+                    <button class="btn btn-info btn-small requirement-edit-btn" onclick="openRequirementModal()"
+                        title="Editar información del requerimiento">
+                        ✏️ Editar
+                    </button>
+                </div>
+
+                <div class="requirement-details" id="requirementDetails">
+                    <div class="requirement-item">
+                        <span class="requirement-label">N° Requerimiento:</span>
+                        <span class="requirement-value" id="displayReqNumber">-</span>
+                    </div>
+                    <div class="requirement-item">
+                        <span class="requirement-label">Nombre:</span>
+                        <span class="requirement-value" id="displayReqName">-</span>
+                    </div>
+                    <div class="requirement-item requirement-description">
+                        <span class="requirement-label">Descripción:</span>
+                        <span class="requirement-value" id="displayReqDescription">-</span>
+                    </div>
+                    <div class="requirement-meta">
+                        <div class="requirement-item">
+                            <span class="requirement-label">N° Caso:</span>
+                            <span class="requirement-value" id="displayReqCase">-</span>
+                        </div>
+                        <div class="requirement-item">
+                            <span class="requirement-label">Titulo Caso:</span>
+                            <span class="requirement-value" id="displayReqTitleCase">-</span>
+                        </div>
+                        <div class="requirement-item">
+                            <span class="requirement-label">Tester Principal:</span>
+                            <span class="requirement-value" id="displayReqTester">-</span>
+                        </div>
+                        <div class="requirement-item">
+                            <span class="requirement-label">Fecha Inicio:</span>
+                            <span class="requirement-value" id="displayReqStartDate">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para editar información del requerimiento -->
+        <div id="requirementModal" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2>📋 Información del Requerimiento</h2>
+                    <span class="close" id="closeRequirementModalBtn">&times;</span>
+                </div>
+                <form id="requirementForm">
+                    <div class="form-group">
+                        <label>N° Requerimiento: *</label>
+                        <input type="text" id="reqNumber" placeholder="Ej: REQ-2024-001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nombre del Requerimiento: *</label>
+                        <input type="text" id="reqName" placeholder="Ej: Sistema de Login con 2FA" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descripción:</label>
+                        <textarea id="reqDescription" rows="3"
+                            placeholder="Descripción detallada del requerimiento o funcionalidad a testear"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group form-group-half">
+                            <label>N° Caso:</label>
+                            <input type="text" id="reqCase" placeholder="Ej: 1, 2, 3...">
+                        </div>
+
+                        <div class="form-group form-group-half">
+                            <label>Titulo Caso:</label>
+                            <input type="text" id="reqTitleCase" placeholder="Ej: Login con 2FA">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group form-group-half">
+                            <label>Tester Principal:</label>
+                            <input type="text" id="reqTester" placeholder="Nombre del tester responsable">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha de Inicio de Testing:</label>
+                        <input type="date" id="reqStartDate">
+                    </div>
+
+                    <div class="controls">
+                        <button type="submit" class="btn btn-success">💾 Guardar Información</button>
+                        <button type="button" class="btn" onclick="closeRequirementModal()">❌ Cancelar</button>
+                        <button type="button" class="btn btn-danger" onclick="clearRequirementInfo()"
+                            style="margin-left: auto;">
+                            🗑️ Limpiar Todo
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>🔍 Buscar:</label>
+                    <input type="text" id="searchInput" placeholder="Buscar por descripción, tester, etc.">
+                </div>
+                <div class="filter-group">
+                    <label>👤 Tester:</label>
+                    <select id="testerFilter">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>📊 Resultado Obtenido:</label>
+                    <select id="statusFilter">
+                        <option value="">Todos</option>
+                        <option value="OK">OK</option>
+                        <option value="NO">NO</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>📅 Desde:</label>
+                    <input type="date" id="dateFromFilter">
+                </div>
+                <div class="filter-group">
+                    <label>📅 Hasta:</label>
+                    <input type="date" id="dateToFilter">
+                </div>
+                <div class="filter-group">
+                    <label>👁️ Mostrar:</label>
+                    <div class="toggle-container">
+                        <input type="checkbox" id="showHiddenToggle" onchange="toggleShowHidden()">
+                        <label for="showHiddenToggle" class="toggle-label">Incluir casos ocultos</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de cronómetro persistente -->
+        <div id="timerBar" class="timer-active-bar" style="display: none;">
+            <div class="timer-bar-content">
+                <div class="timer-info">
+                    <span class="timer-icon">🕒</span>
+                    <div class="timer-details">
+                        <strong id="timerScenario">Escenario --</strong>
+                        <span id="timerDescription">--</span>
+                    </div>
+                    <div class="timer-display" id="timerDisplay">00:00</div>
+                </div>
+                <div class="timer-controls">
+                    <button class="btn btn-warning btn-small" onclick="pauseTimer()" id="pauseBtn">⏸️ Pausar</button>
+                    <button class="btn btn-danger btn-small" onclick="stopRowTimer()">⏹️ Finalizar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar de acciones masivas -->
+        <div id="bulkActionsToolbar" class="bulk-toolbar" style="display: none;">
+            <div class="bulk-toolbar-content">
+                <div class="bulk-info">
+                    <span id="selectedCounter">0 casos seleccionados</span>
+                </div>
+                <div class="bulk-actions">
+                    <button class="btn btn-success-bright" onclick="openBulkEditModal()"
+                        title="Editar campos comunes de casos seleccionados">
+                        📝 Editar Seleccionados
+                    </button>
+                    <button class="btn btn-warning" onclick="hideBulkCases()" title="Ocultar casos seleccionados">
+                        👁️‍🗨️ Ocultar Seleccionados
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteBulkCases()" title="Eliminar casos seleccionados">
+                        🗑️ Eliminar Seleccionados
+                    </button>
+                    <button class="btn btn-small" onclick="clearSelection()" title="Deseleccionar todos">
+                        ❌ Deseleccionar Todo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-number" id="totalCases">0</div>
+                <div class="stat-label">Total Escenarios</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="okCases">0</div>
+                <div class="stat-label">Escenarios OK</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="noCases">0</div>
+                <div class="stat-label">Escenarios NO</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="successRate">0%</div>
+                <div class="stat-label">Tasa de Éxito</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="table-container">
+                <table id="testCasesTable">
+                    <thead>
+                        <tr>
+                            <th class="col-ciclo">Ciclo</th>
+                            <th class="col-escenario">N° Escenario</th>
+                            <th class="col-descripcion">Descripción</th>
+                            <th id="varsThPlaceholder"></th> <!-- Aquí se insertan las variables dinámicas -->
+                            <th class="col-resultado-esperado">Resultado Esperado</th>
+                            <th class="col-resultado-obtenido">Resultado Obtenido</th>
+                            <th class="col-fecha-ejecucion">Fecha Ejecución</th>
+                            <th class="col-observaciones">Observaciones</th>
+                            <th class="col-error">N° Error/Bug</th>
+                            <th class="col-tester">Tester</th>
+                            <th class="col-tiempo">Tiempo (min)</th>
+                            <th class="col-evidencias">Evidencias</th>
+                            <th class="col-acciones">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="testCasesBody">
+                    </tbody>
+                </table>
+            </div>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div style="font-size: 4em; margin-bottom: 20px; opacity: 0.5;">📋</div>
+                <h3>No hay casos de prueba</h3>
+                <p>Comienza agregando tu primer escenario de prueba haciendo clic en "Nuevo Escenario"</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Configurar Variables -->
+    <div id="configVarsModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Configurar Variables de Entrada</h2>
+                <span class="close" id="closeConfigVarsBtn">&times;</span>
+            </div>
+            <form id="configVarsForm">
+                <div id="varsList"></div>
+                <div style="margin-top:15px;">
+                    <button type="button" class="btn btn-info btn-small" id="btnAddVarName">+ Agregar Variable</button>
+                </div>
+                <div class="controls" style="margin-top:20px;">
+                    <button type="submit" class="btn btn-success">💾 Guardar Configuración</button>
+                    <button type="button" class="btn" id="btnCancelConfigVars">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar caso -->
+    <div id="testCaseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">📋 Nuevo Escenario de Prueba</h2>
+                <span class="close" id="closeModalBtn">&times;</span>
+            </div>
+            <form id="testCaseForm">
+                <div class="form-group">
+                    <label>Ciclo:</label>
+                    <input type="text" id="cycleNumber" required>
+                </div>
+                <div class="form-group">
+                    <label>N° Escenario:</label>
+                    <input type="text" id="scenarioNumber" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción:</label>
+                    <textarea id="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Variables de Entrada:</label>
+                    <div id="fixedVariablesContainer"></div>
+                </div>
+                <div class="form-group">
+                    <label>Resultado Esperado:</label>
+                    <textarea id="obtainedResult"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Resultado Obtenido:</label>
+                    <select id="status">
+                        <option value="">Pendiente</option>
+                        <option value="OK">OK</option>
+                        <option value="NO">NO</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha de Ejecución:</label>
+                    <input type="date" id="executionDate">
+                </div>
+                <div class="form-group">
+                    <label>Observaciones:</label>
+                    <textarea id="observations"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>N° Error/Bug:</label>
+                    <input type="text" id="errorNumber">
+                </div>
+                <div class="form-group">
+                    <label>Nombre del Tester:</label>
+                    <input type="text" id="tester" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Evidencias (Imágenes):</label>
+                    <div class="evidence-container">
+                        <input type="file" id="evidenceInput" accept="image/*" multiple>
+                        <div id="evidenceContainer"></div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button type="submit" class="btn btn-success" id="saveButton">💾 Guardar Caso</button>
+                    <button type="button" class="btn" id="btnCancelModal">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para edición masiva -->
+    <div id="bulkEditModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="bulkEditModalTitle">📝 Editar Escenarios Seleccionados</h2>
+                <span class="close" id="closeBulkEditBtn">&times;</span>
+            </div>
+
+            <div class="bulk-edit-info">
+                <p><strong>📢 <span id="bulkEditCount">0</span> casos seleccionados</strong></p>
+                <p class="bulk-edit-hint">💡 Solo se actualizarán los campos que completes. Los campos vacíos no se
+                    modificarán.</p>
+            </div>
+
+            <form id="bulkEditForm">
+                <div class="form-group">
+                    <label>Descripción:</label>
+                    <textarea id="bulkDescription" placeholder="Dejar vacío para no cambiar"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Variables de Entrada:</label>
+                    <div id="bulkVariablesContainer"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Resultado Esperado:</label>
+                    <textarea id="bulkExpectedResult" placeholder="Dejar vacío para no cambiar"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Resultado Obtenido:</label>
+                    <select id="bulkStatus">
+                        <option value="">-- No cambiar --</option>
+                        <option value="OK">OK</option>
+                        <option value="NO">NO</option>
+                        <option value="Pendiente">Pendiente</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha de Ejecución:</label>
+                    <input type="date" id="bulkExecutionDate" title="Dejar vacío para no cambiar">
+                </div>
+
+                <div class="form-group">
+                    <label>Observaciones:</label>
+                    <textarea id="bulkObservations" placeholder="Dejar vacío para no cambiar"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>N° Error/Bug:</label>
+                    <input type="text" id="bulkErrorNumber" placeholder="Dejar vacío para no cambiar">
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre del Tester:</label>
+                    <input type="text" id="bulkTester" placeholder="Dejar vacío para no cambiar">
+                </div>
+
+                <div class="controls">
+                    <button type="submit" class="btn btn-success-bright">💾 Aplicar Cambios</button>
+                    <button type="button" class="btn" id="btnCancelBulkEdit">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para visualizar evidencias -->
+    <div id="evidenceViewModal" class="modal">
+        <div class="modal-content" style="max-width: 90%; max-height: 90vh;">
+            <div class="modal-header">
+                <h2>📸 Evidencias del Escenario</h2>
+                <span class="close" id="closeEvidenceModalBtn">&times;</span>
+            </div>
+            <div id="evidenceViewContainer"
+                style="text-align: center; overflow-y: auto; max-height: calc(90vh - 100px);">
+                <!-- Las imágenes se cargarán aquí dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para imagen ampliada -->
+    <div id="imageZoomModal" class="modal" style="display:none; z-index: 10001;">
+        <span class="close" id="closeImageZoomBtn"
+            style="position:absolute;top:20px;right:40px;font-size:40px;cursor:pointer;color:white;">&times;</span>
+        <img id="zoomedImage"
+            style="display:block;max-width:90vw;max-height:90vh;margin:60px auto 0 auto;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.5);" />
+    </div>
+
+    <!-- Modal para Vista Previa del Reporte -->
+    <div id="reportPreviewModal" class="modal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h2>📊 Vista Previa del Reporte del Caso</h2>
+                <span class="close" id="closeReportModalBtn">&times;</span>
+            </div>
+            <div id="reportPreviewContent"
+                style="font-family: 'Courier New', monospace; white-space: pre-line; padding: 20px; background: #f8f9fa; border-radius: 8px; overflow-y: auto; max-height: 60vh; line-height: 1.4;">
+                <!-- El contenido del reporte se generará aquí -->
+            </div>
+            <div class="controls" style="margin-top: 20px;">
+                <button class="btn btn-success" id="btnDownloadPDF">📄 Descargar PDF</button>
+                <button class="btn" id="btnCancelReport">❌ Cerrar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts en orden correcto -->
+    <script src="js/core.js"></script>
+    <script src="js/exportImport.js"></script>
+    <script src="js/cases.js"></script>
+    <script src="js/timers.js"></script>
+    <script src="js/bulk.js"></script>
+    <script src="js/dragdrop.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/reports.js"></script>
+    
+    <!-- Librerías externas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-populate/browser/xlsx-populate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('✅ PWA Auto-Update: Service Worker registrado');
+
+                        navigator.serviceWorker.addEventListener('message', event => {
+                            if (event.data?.type === 'UPDATE_AVAILABLE') {
+                                console.log('🆕 Actualización detectada automáticamente');
+                                showUpdateNotification();
+                                setTimeout(() => {
+                                    console.log('🔄 Aplicando actualización automática...');
+                                    window.location.reload();
+                                }, 2000);
+                            }
+                        });
+
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('🆕 Nueva versión del Service Worker detectada');
+
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    showUpdateNotification();
+                                    setTimeout(() => {
+                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                        window.location.reload();
+                                    }, 2000);
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.log('❌ Error registrando Service Worker:', error);
+                    });
+            });
+
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                console.log('🔄 Service Worker actualizado, recargando...');
+                window.location.reload();
+            });
+        }
+
+        function showUpdateNotification() {
+            const notification = document.createElement('div');
+            notification.id = 'updateNotification';
+            notification.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #10b981, #059669);
+                    color: white;
+                    padding: 16px 24px;
+                    border-radius: 12px;
+                    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+                    z-index: 10000;
+                    font-family: 'Segoe UI', sans-serif;
+                    font-weight: bold;
+                    animation: slideIn 0.3s ease-out;
+                ">
+                    🔄 Actualizando aplicación...
+                </div>
+                <style>
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                </style>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (document.getElementById('updateNotification')) {
+                    document.getElementById('updateNotification').remove();
+                }
+            }, 3000);
+
+            console.log('📢 Notificación de actualización mostrada');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+            if (isDev) {
+                const devButton = document.createElement('button');
+                devButton.className = 'btn btn-info btn-small';
+                devButton.innerHTML = '🔄 Forzar Update';
+                devButton.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    z-index: 9999;
+                    font-size: 12px;
+                    padding: 8px 12px;
+                `;
+
+                devButton.onclick = async function () {
+                    console.log('🔄 Forzando actualización manual...');
+                    const registration = await navigator.serviceWorker.getRegistration();
+                    if (registration) {
+                        await registration.unregister();
+                        window.location.reload();
+                    }
+                };
+
+                document.body.appendChild(devButton);
+            }
+        });
+    </script>
+</body>
+
+</html>
